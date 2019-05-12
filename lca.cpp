@@ -1,26 +1,27 @@
+// Taken from striver_79's github repo 
 // Stores the parent of every node 
-long par[2*1e5+10][20];
+int par[N][21];
 
 // Stores the dept 
-long dep[2*1e5+10];
+int dep[N];
 
 // Stores the tree 
-vector<long> g[2*1e5+10];
+vector<int> g[N];
 
 // Function to pre-compute DFS
-void dfs(long v, long p = 1)
+void dfs(int v, int p = 0)
 {
 
     // First parent
     par[v][0] = p;
 
     // Finds the parent at 2^i
-    for (int i = 1; i <= l; i++)
+    for (int i = 1; i <= 20; i++)
         par[v][i] = par[par[v][i - 1]][i - 1];
 
     // Call DFS function
     for (int i = 0; i < g[v].size(); i++) {
-        long to = g[v][i];
+        int to = g[v][i];
 
         // Already visited
         if (to == p)
@@ -38,7 +39,7 @@ void dfs(long v, long p = 1)
 
 
 // Function to find the lca of a and b 
-long lca(long a, long b)
+int lca(int a, int b)
 {
 
     // If a is higher than b then swap them 
@@ -47,7 +48,7 @@ long lca(long a, long b)
         swap(a, b);
 
     // Make both of them at equal height 
-    for (int i = l; i >= 0; i--)
+    for (int i = 20; i >= 0; i--)
     {
         if (dep[a] - (1 << i) >= dep[b])
             a = par[a][i];
@@ -55,7 +56,7 @@ long lca(long a, long b)
 
     // Now traverse till up 
     // till we donot get parent same 
-    for (int i = l; i >= 0; --i)
+    for (int i = 20; i >= 0; --i)
     {
         if (par[a][i] != par[b][i])
         {
@@ -72,7 +73,7 @@ long lca(long a, long b)
 }
 
 // Function to find the distance between a and b 
-long solve(long a, long b)
+int solve(int a, int b)
 {
     if (a == b)
         return 0;
@@ -81,7 +82,7 @@ long solve(long a, long b)
         swap(a, b);
 
     // Find lca
-    long q = lca(a, b);
-    long dist = dep[a] + dep[b] - 2 * dep[q];
+    int q = lca(a, b);
+    int dist = dep[a] + dep[b] - 2 * dep[q];
     return dist;
 }
