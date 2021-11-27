@@ -1,58 +1,45 @@
-#include<bits/stdc++.h>
-using namespace std;
-int a[1000],b[1000]={0};
+class SGTree {
+	vector<int> seg;
+public:
+	SGTree(int n) {
+		seg.resize(4 * n + 1);
+	}
 
-void tree(int low,int high,int pos)
-{
-    if(low==high)
-    {
-        b[pos]=a[high];
-        return ;
-    }
-    int mid=(high+low)/2;
-    
-    tree(low,mid,2*pos+1);
-    tree(mid+1,high,2*pos+2);
-    b[pos]=b[2*pos+1]+b[2*pos+2];
-    
-}
+	void build(int ind, int low, int high, int arr[]) {
+		if (low == high) {
+			seg[ind] = arr[low];
+			return;
+		}
 
-int sum(int s, int e, int low, int high, int pos)
-{
-    
-    if (low<= s && high >= e)
-        return b[pos];
-    if (e < low || s > high)
-        return 0;
-    int mid = (s+e)/2;
-    return (sum( s, mid, low, high, 2*pos+1) + sum( mid+1, e, low,high, 2*pos+2));
-}
-void update(int low,int high,int i,int diff,int pos)
-{
-    if(i<low or i>high) return;
-    b[pos]+=diff;
-    if(low!=high)
-    {
-        int mid=(low+high)/2;
-        update(low,mid,i,diff,2*pos+1);
-        update(mid+1,high,i,diff,2*pos+2);
-    }
-}
- 
-int main()
-{
-  int n;
-  cin >> n;
-  for(int i=0;i<n;i++)
-  {
-      cin >>a[i];
-  }
-  
-  tree(0,n-1,0);
-  cout << sum(0,n-1,2,3,0)<<endl;
-  int d=1;
-  update(0,n-1,2,a[2]-d,0);
-   cout << sum(0,n-1,2,3,0);
-  
-  
-}
+		int mid = (low + high) / 2;
+		build(2 * ind + 1, low, mid, arr);
+		build(2 * ind + 2, mid + 1, high, arr);
+		seg[ind] = min(seg[2 * ind + 1], seg[2 * ind + 2]);
+	}
+
+	int query(int ind, int low, int high, int l, int r) {
+		// no overlap
+		// l r low high or low high l r
+		if (r < low || high < l) return INT_MAX;
+
+		// complete overlap
+		// [l low high r]
+		if (low >= l && high <= r) return seg[ind];
+
+		int mid = (low + high) >> 1;
+		int left = query(2 * ind + 1, low, mid, l, r);
+		int right = query(2 * ind + 2, mid + 1, high, l, r);
+		return min(left, right);
+	}
+	void update(int ind, int low, int high, int i, int val) {
+		if (low == high) {
+			seg[ind] = val;
+			return;
+		}
+
+		int mid = (low + high) >> 1;
+		if (i <= mid) update(2 * ind + 1, low, mid, i, val);
+		else update(2 * ind + 2, mid + 1, high, i, val);
+		seg[ind] = min(seg[2 * ind + 1], seg[2 * ind + 2]);
+	}
+};
